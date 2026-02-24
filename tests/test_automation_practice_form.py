@@ -1,5 +1,5 @@
+import os
 from selene import browser, have, be, command
-
 
 def test_fill_practice_form():
     # 1. Открываем форму
@@ -24,14 +24,16 @@ def test_fill_practice_form():
     browser.element('#dateOfBirthInput').click()
     browser.element('.react-datepicker__month-select').send_keys('June')
     browser.element('.react-datepicker__year-select').send_keys('1995')
-    # чтобы не попасть по прошлому месяцу исключаем его
     browser.element('.react-datepicker__day--015:not(.react-datepicker__day--outside-month)').click()
 
     # 7. Предметы
     browser.element('#subjectsInput').type('Computer Science').press_enter()
 
-    # 8. Хобби (Заменили сложный поиск на простой клик по label)
+    # 8. Хобби
     browser.element('[for="hobbies-checkbox-2"]').should(have.text('Reading')).click()
+
+    # --- ДОБАВЛЕНО: Загрузка файла ---
+    browser.element('#uploadPicture').send_keys(os.path.abspath('photo.jpg'))
 
     # 9. Адрес
     browser.element('#currentAddress').type('Russia, Nizhny Tagil')
@@ -43,10 +45,21 @@ def test_fill_practice_form():
     # 11. Нажимаем Submit
     browser.element('#submit').perform(command.js.click)
 
-    # 12. ПРОВЕРКИ
+    # --- ПРОВЕРКИ (Усиленные) ---
     # Проверяем заголовок модального окна
     browser.element('#example-modal-sizes-title-lg').should(have.text('Thanks for submitting the form'))
 
-    # Проверяем данные в таблице (имя и почта)
-    browser.element('.table').should(have.text('Dmitry QA_GURU'))
-    browser.element('.table').should(have.text('test@qaguru.ru'))
+    # Проверяем ВСЕ данные в таблице одной командой.
+    # Мы берем вторую колонку (значения) и сверяем их со списком.
+    browser.all('.table td:nth-child(2)').should(have.texts(
+        'Dmitry QA_GURU',
+        'test@qaguru.ru',
+        'Male',
+        '1234567890',
+        '15 June,1995',
+        'Computer Science',
+        'Reading',
+        'photo.jpg',
+        'Russia, Nizhny Tagil',
+        'NCR Delhi'
+    ))
