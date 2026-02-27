@@ -1,5 +1,6 @@
+import os
 from selene import browser, have, command
-import time
+
 
 def test_student_registration_form():
     # Увеличиваем таймаут до 10 секунд для всех операций
@@ -47,9 +48,12 @@ def test_student_registration_form():
     browser.element('#city').click()
     browser.all('//div[contains(text(), "Delhi")]').should(have.size_greater_than(0)).first.click()
 
+    # --- ДОБАВЛЕНО: Загрузка файла --- ИСПРАВЛЕН ПУТЬ
+    browser.element('#uploadPicture').send_keys(os.path.abspath('tests/photo.jpg'))
+
     # 7. SUBMIT
     browser.element('#submit').perform(command.js.click)
 
-    # 8. ПРОВЕРКИ
-    browser.element('.modal-content').should(have.text_containing('Thanks for submitting the form'))
-    browser.element('.table-responsive').should(have.text_containing('Ivan Ivanov'))
+    # 8. ПРОВЕРКИ - ИСПРАВЛЕНО: заменено text_containing на text
+    browser.element('.modal-content').should(have.text('Thanks for submitting the form'))
+    browser.element('.table-responsive').should(have.text('Ivan Ivanov'))
